@@ -1,22 +1,4 @@
 @startuml
  actor caller 
- participant UniswapV2ERC20 
- participant UniswapV2Factory 
- participant UniswapV2Pair 
- participant IERC20 
- participant IUniswapV2Callee 
- participant IUniswapV2ERC20 
- participant IUniswapV2Factory 
- participant IUniswapV2Pair 
- participant Math 
- participant SafeMath 
- participant UQ112x112 
-  caller -> UniswapV2Factory: createPair 
- note over UniswapV2Factory: SLOADS: \n   - getPair 
- UniswapV2Factory -> IUniswapV2Pair: initialize(address,address) 
- note over UniswapV2Factory: SSTORE: \n   - getPair 
- note over UniswapV2Factory: SSTORE: \n   - getPair 
- note over UniswapV2Factory: SLOADS: \n   - allPairs 
- note over UniswapV2Factory: SSTORE: \n   - allPairs 
- note over UniswapV2Factory: SLOADS: \n   - allPairs 
+  
 @enduml
