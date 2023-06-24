@@ -1,8 +1,11 @@
 @startuml
 actor caller 
-caller -> UniswapV2Factory: createPair
+caller -> UniswapV2Factory: UniswapV2Factory.createPair(address,address)
 note over UniswapV2Factory: SLOADs: \n   - getPair 
-UniswapV2Factory -> IUniswapV2Pair: initialize(address,address) 
+UniswapV2Factory -> UniswapV2Pair: initialize(address,address)
+note over UniswapV2Pair: SLOADs: \n   - factory 
+note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token0 
+note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token1 
 note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair 
 note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair
 note over UniswapV2Factory: SLOADs: \n   - allPairs 

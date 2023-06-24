@@ -14,21 +14,34 @@ class Sequence(AbstractPrinter):
 
     WIKI = "www.example.com"
     
-    def handleFunction(self, function_name, bodystring):
+    def handleNodes(self, function, bodystring, contract_name, function_name):
         res = bodystring
         
+        for node in function.nodes_ordered_dominators: # Review each node
+            
+            res = self.externalCall(node, res, contract_name)
+            res = self.storageReads(node, res, contract_name)
+            res = self.storageWrites(node, res, contract_name)
+
+        return res
+    
+    def getFunction(self, function_name):
         for contract in self.contracts:
         
             for function in contract.functions :
         
-                if function.canonical_name == function_name: # If it's our function
+                if function_name[0] == "I":
+                    if function.canonical_name == function_name[1:]: # rm I from interface
+                        return (contract.name, function)
+                elif function.canonical_name == function_name:
+                    return (contract.name, function)
+
+    
+    def handleFunction(self, function_name, bodystring):
+        res = bodystring
         
-                    for node in function.nodes_ordered_dominators: # Review each node
-                        
-                        res = self.externalCall(node, res, contract.name)
-                        res = self.entryPoint(node, res, contract.name, function.name)
-                        res = self.storageReads(node, res, contract.name)
-                        res = self.storageWrites(node, res, contract.name)
+        (contract_name, function) = self.getFunction(function_name)
+        res = self.handleNodes(function, res, contract_name, function.canonical_name)                
         
         return res
     
@@ -55,11 +68,14 @@ class Sequence(AbstractPrinter):
         return res
 
     
-    def entryPoint(self, node, bodystring, contract_name, function_name):
+    def entryPoint(self, function_name, bodystring):
         res = bodystring
         
-        if node.type == NodeType.ENTRYPOINT:
-            res = f"{res}caller -> {contract_name}: {function_name}"
+        (contract_name, function) = self.getFunction(function_name)
+        
+        for node in function.nodes_ordered_dominators: # Review each node
+            if node.type == NodeType.ENTRYPOINT:
+                res = f"{res}caller -> {contract_name}: {function_name}"
         
         return res
 
@@ -76,7 +92,11 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
-                        res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        if callee.name[0] == "I":
+                            res = f"{res} \n{contract_name} -> {callee.name[1:]}: {caller.solidity_signature}"
+                        else:
+                            res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        res = self.handleFunction(caller.canonical_name, res)
 
         return res
 
@@ -99,6 +119,7 @@ class Sequence(AbstractPrinter):
         all_files = []
         # participants = f"{participants} participant {contract.name} \n"
         
+        bodystring = self.entryPoint(function_from_args, bodystring)
         bodystring = self.handleFunction(function_from_args, bodystring)
 
 
