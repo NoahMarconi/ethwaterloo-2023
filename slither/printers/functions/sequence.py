@@ -45,8 +45,10 @@ class Sequence(AbstractPrinter):
                                 for external_function in callee.derived_contracts[0].functions:
                                     if external_function.canonical_name == caller.canonical_name:
                                         bodystring = f"{bodystring} \n {contract.name} -> {callee.name}: {caller.solidity_signature}"
-
-                            
+                                        # Call function to analyze callee
+                                        # After callee function returns...    
+                                        bodystring = f"{bodystring} \n {contract.name} <- {callee.name}: return {caller.solidity_signature}"
+                        
                         
                         
                         

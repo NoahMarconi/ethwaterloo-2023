@@ -14,6 +14,7 @@
   caller -> UniswapV2Factory: createPair 
  note over UniswapV2Factory: SLOADS: \n   - getPair 
  UniswapV2Factory -> IUniswapV2Pair: initialize(address,address) 
+ UniswapV2Factory <- IUniswapV2Pair: return initialize(address,address) 
  note over UniswapV2Factory: SSTORE: \n   - getPair 
  note over UniswapV2Factory: SSTORE: \n   - getPair 
  note over UniswapV2Factory: SLOADS: \n   - allPairs 
