@@ -1,4 +1,5 @@
 @startuml
+<<<<<<< HEAD
  actor caller 
  participant UniswapV2ERC20 
  participant UniswapV2Factory 
@@ -18,4 +19,15 @@
  note over UniswapV2Factory: SLOADS: \n   - allPairs 
  note over UniswapV2Factory: SSTORE: \n   - allPairs 
  note over UniswapV2Factory: SLOADS: \n   - allPairs 
+=======
+actor caller 
+caller -> UniswapV2Factory: createPair
+note over UniswapV2Factory: SLOADs: \n   - getPair 
+UniswapV2Factory -> IUniswapV2Pair: initialize(address,address) 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair
+note over UniswapV2Factory: SLOADs: \n   - allPairs 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - allPairs
+note over UniswapV2Factory: SLOADs: \n   - allPairs
+>>>>>>> dev
 @enduml
