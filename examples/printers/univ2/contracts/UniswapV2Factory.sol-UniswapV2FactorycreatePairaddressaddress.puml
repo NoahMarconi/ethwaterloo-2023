@@ -13,6 +13,9 @@
  participant UQ112x112 
   caller -> UniswapV2Factory: createPair 
  note over UniswapV2Factory: SLOADS: \n   - getPair 
+ note over UniswapV2Factory: SSTORE: \n   - getPair 
+ note over UniswapV2Factory: SSTORE: \n   - getPair 
  note over UniswapV2Factory: SLOADS: \n   - allPairs 
+ note over UniswapV2Factory: SSTORE: \n   - allPairs 
  note over UniswapV2Factory: SLOADS: \n   - allPairs 
 @enduml

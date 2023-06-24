@@ -17,6 +17,7 @@ class Sequence(AbstractPrinter):
     def output(self, filename: str) -> Output:
         
         functionName = "UniswapV2Factory.createPair(address,address)"
+        internalFunctionName= "UniswapV2Pair._mintFee(uint112,uint112)"
         """
         _filename is not used
         Args:
