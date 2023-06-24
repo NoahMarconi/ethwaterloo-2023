@@ -1,0 +1,28 @@
+@startuml
+actor caller 
+caller -> UniswapV2Pair: UniswapV2Pair.mint(address) 
+ UniswapV2Pair -> UniswapV2Pair: lock() 
+ UniswapV2Pair -> UniswapV2Pair: getReserves() 
+UniswapV2Pair -> IERC20: balanceOf(address) 
+ UniswapV2Pair <- IERC20: return balanceOf(address)
+note over UniswapV2Pair: SLOADs: \n   - token0 
+UniswapV2Pair -> IERC20: balanceOf(address) 
+ UniswapV2Pair <- IERC20: return balanceOf(address)
+note over UniswapV2Pair: SLOADs: \n   - token1 
+ UniswapV2Pair -> UniswapV2Pair: _mintFee(uint112,uint112)
+note over UniswapV2Pair: SLOADs: \n   - totalSupply
+note over UniswapV2Pair: SLOADs: \n   - MINIMUM_LIQUIDITY
+note over UniswapV2Pair: SLOADs: \n   - MINIMUM_LIQUIDITY 
+ UniswapV2Pair -> UniswapV2Pair: _mint(address,uint256) 
+ alt require 
+
+	 UniswapV2Pair -> UniswapV2Pair:  revert 
+ else continue 
+ end 
+ 
+ UniswapV2Pair -> UniswapV2Pair: require(bool,string) 
+ UniswapV2Pair -> UniswapV2Pair: _mint(address,uint256) 
+ UniswapV2Pair -> UniswapV2Pair: _update(uint256,uint256,uint112,uint112)
+note over UniswapV2Pair: SLOADs: \n   - reserve0 \n   - reserve1 
+note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - kLast
+@enduml

@@ -19,6 +19,7 @@ class Sequence(AbstractPrinter):
         
         for node in function.nodes_ordered_dominators: # Review each node
             
+            res = self.handleInternalFunction(node, res, contract_name)
             res = self.externalCall(node, res, contract_name)
             res = self.storageReads(node, res, contract_name)
             res = self.storageWrites(node, res, contract_name)
@@ -45,6 +46,15 @@ class Sequence(AbstractPrinter):
         res = self.handleNodes(function, res, contract_name, function.canonical_name)                
         
         return res
+    
+    def handleInternalFunction(self, node, bodystring, contract_name):
+        res = bodystring
+
+        for internal_calls in node.internal_calls:
+            res = f"{res} \n {contract_name} -> {contract_name}: {internal_calls.full_name}"
+
+        return res
+    
     
     def storageReads(self, node, bodystring, contract_name):
         res = bodystring
@@ -97,23 +107,32 @@ class Sequence(AbstractPrinter):
 
             if callee.contract_kind == "interface":
                 
-                for external_function in callee.derived_contracts[0].functions:
+                callee_name = callee.name
+                if len(callee.derived_contracts) > 0:
+                    for external_function in callee.derived_contracts[0].functions:
 
-                    if external_function.canonical_name == caller.canonical_name:
-                        callee_name = callee.name
-                        if callee.name[0] == "I":
-                            callee_name = callee.name[1:]
-                            
-                        res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
-                        res = self.handleFunction(caller.canonical_name, res)
-                            
-                        res = f"{res} \n {contract_name} <- {callee_name}: return {caller.solidity_signature}"
-
+                        if external_function.canonical_name == caller.canonical_name:
+                            if callee.name[0] == "I":
+                                callee_name = callee.name[1:]
+                                
+                            res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
+                            res = self.handleFunction(caller.canonical_name, res)
+                            res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
+                            # Return to caller    
+                            res = f"{res} \n {contract_name} <- {callee_name}: return {caller.solidity_signature}"
+                else:
+                    
+                    res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
+                    # Return to caller
+                    res = f"{res} \n {contract_name} <- {callee_name}: return {caller.solidity_signature}"
+                    
         return res
 
     def output(self, filename: str) -> Output:
         
-        function_from_args = "UniswapV2Factory.createPair(address,address)"
+        # function_from_args = "UniswapV2Factory.createPair(address,address)"
+        function_from_args = "UniswapV2Pair.mint(address)"
+
         """
         _filename is not used
         Args:
@@ -132,6 +151,7 @@ class Sequence(AbstractPrinter):
         
         bodystring = self.entryPoint(function_from_args, bodystring)
         bodystring = self.handleFunction(function_from_args, bodystring)
+
 
 
         pumlString = f"{pumlStart}{participants}{bodystring}{pumlEnd}"
