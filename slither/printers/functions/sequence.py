@@ -43,6 +43,11 @@ class Sequence(AbstractPrinter):
                         for varRead in node.state_variables_read:
                             bodystring = f"{bodystring} \\n   - {varRead.name}"
                             print(node)
+                        if len(node.state_variables_written) > 0:
+                            bodystring = f"{bodystring} \n note over {contract.name}: SSTORE:"
+                        for varWrite in node.state_variables_written:
+                            bodystring = f"{bodystring} \\n   - {varWrite.name}"
+                            print(node)
         pumlString = f"{pumlStart} {participants} {bodystring} {pumlEnd}"
 
         if filename:
