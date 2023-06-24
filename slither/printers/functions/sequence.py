@@ -16,21 +16,27 @@ class Sequence(AbstractPrinter):
     
     def handleFunction(self, function_name, bodystring):
         res = bodystring
+        
         for contract in self.contracts:
+        
             for function in contract.functions :
+        
                 if function.canonical_name == function_name: # If it's our function
+        
                     for node in function.nodes_ordered_dominators: # Review each node
                         
                         res = self.externalCall(node, res, contract.name)
                         res = self.entryPoint(node, res, contract.name, function.name)
                         res = self.storageReads(node, res, contract.name)
                         res = self.storageWrites(node, res, contract.name)
+        
+        return res
     
     def storageReads(self, node, bodystring, contract_name):
-        res = ""
+        res = bodystring
         
         if len(node.state_variables_read) > 0:
-            res = f"{bodystring} \n note over {contract_name}: SLOADs:"
+            res = f"{res} \n note over {contract_name}: SLOADs:"
         
             for varRead in node.state_variables_read:
                 res = f"{res} \\n   - {varRead.name}"
@@ -38,10 +44,10 @@ class Sequence(AbstractPrinter):
         return res
 
     def storageWrites(self, node, bodystring, contract_name):
-        res = ""
+        res = bodystring
         
         if len(node.state_variables_written) > 0:
-            res = f"{bodystring} \n note over {contract_name} #A9DCDF: SSTOREs:"
+            res = f"{res} \n note over {contract_name} #A9DCDF: SSTOREs:"
         
         for varWrite in node.state_variables_written:
             res = f"{res} \\n   - {varWrite.name}"
@@ -50,16 +56,16 @@ class Sequence(AbstractPrinter):
 
     
     def entryPoint(self, node, bodystring, contract_name, function_name):
-        res = ""
+        res = bodystring
         
         if node.type == NodeType.ENTRYPOINT:
-            res = f"{bodystring} caller -> {contract_name}: {function_name}"
+            res = f"{res} caller -> {contract_name}: {function_name}"
         
         return res
 
 
     def externalCall(self, node, bodystring, contract_name):
-        res = ""
+        res = bodystring
         
         if len(node.high_level_calls) > 0:
             callee = node.high_level_calls[0][0]
@@ -70,7 +76,7 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
-                        res = f"{bodystring} \n {contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        res = f"{res} \n {contract_name} -> {callee.name}: {caller.solidity_signature}"
 
         return res
 
@@ -93,7 +99,7 @@ class Sequence(AbstractPrinter):
         all_files = []
         # participants = f"{participants} participant {contract.name} \n"
         
-        self.handleFunction(function_from_args, bodystring)
+        bodystring = self.handleFunction(function_from_args, bodystring)
 
 
         pumlString = f"{pumlStart} {participants} {bodystring} {pumlEnd}"
