@@ -36,7 +36,7 @@ class Sequence(AbstractPrinter):
         res = bodystring
         
         if len(node.state_variables_read) > 0:
-            res = f"{res} \n note over {contract_name}: SLOADs:"
+            res = f"{res}\nnote over {contract_name}: SLOADs:"
         
             for varRead in node.state_variables_read:
                 res = f"{res} \\n   - {varRead.name}"
@@ -47,7 +47,7 @@ class Sequence(AbstractPrinter):
         res = bodystring
         
         if len(node.state_variables_written) > 0:
-            res = f"{res} \n note over {contract_name} #A9DCDF: SSTOREs:"
+            res = f"{res} \nnote over {contract_name} #A9DCDF: SSTOREs:"
         
         for varWrite in node.state_variables_written:
             res = f"{res} \\n   - {varWrite.name}"
@@ -59,7 +59,7 @@ class Sequence(AbstractPrinter):
         res = bodystring
         
         if node.type == NodeType.ENTRYPOINT:
-            res = f"{res} caller -> {contract_name}: {function_name}"
+            res = f"{res}caller -> {contract_name}: {function_name}"
         
         return res
 
@@ -76,7 +76,7 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
-                        res = f"{res} \n {contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
 
         return res
 
@@ -102,7 +102,7 @@ class Sequence(AbstractPrinter):
         bodystring = self.handleFunction(function_from_args, bodystring)
 
 
-        pumlString = f"{pumlStart} {participants} {bodystring} {pumlEnd}"
+        pumlString = f"{pumlStart}{participants}{bodystring}{pumlEnd}"
 
         if filename:
             rev_function_name = "".join(x for x in function_from_args if x.isalnum())
