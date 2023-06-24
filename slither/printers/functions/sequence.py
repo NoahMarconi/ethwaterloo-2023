@@ -22,6 +22,7 @@ class Sequence(AbstractPrinter):
             res = self.externalCall(node, res, contract_name)
             res = self.storageReads(node, res, contract_name)
             res = self.storageWrites(node, res, contract_name)
+            res = self.conditionals(node, res, contract_name)
 
         return res
     
@@ -67,6 +68,13 @@ class Sequence(AbstractPrinter):
             
         return res
 
+    def conditionals(self, node, bodystring, contract_name):
+        res = bodystring
+        
+        if node.type == NodeType.EXPRESSION and len(node.solidity_calls) > 0 and len(node.solidity_calls[0].references) > 0 and node.solidity_calls[0].references[0].content == "require":
+            res = f"{res} \n alt require \n\n\t {contract_name} -> {contract_name}:  revert \n else continue \n end \n"
+            
+        return res
     
     def entryPoint(self, function_name, bodystring):
         res = bodystring
