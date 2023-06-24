@@ -13,39 +13,52 @@ class Sequence(AbstractPrinter):
     HELP = "Export a sequence diagram of a function"
 
     WIKI = "www.example.com"
-
-
-
-    def handleFunction(self, function_name, body_string):
-        res = body_string
+    
+    def handleNodes(self, function, bodystring, contract_name, function_name):
+        res = bodystring
         
+        for node in function.nodes_ordered_dominators: # Review each node
+            
+            res = self.externalCall(node, res, contract_name)
+            res = self.storageReads(node, res, contract_name)
+            res = self.storageWrites(node, res, contract_name)
+
+        return res
+    
+    def getFunction(self, function_name):
         for contract in self.contracts:
         
-                if function.canonical_name == function_name: # If it's our function
+            for function in contract.functions :
         
-                    for node in function.nodes_ordered_dominators: # Review each node
-                        
-                        res = self.externalCall(node, res, contract.name)
-                        res = self.entryPoint(node, res, contract.name, function.name)
-                        res = self.storageReads(node, res, contract.name)
-                        res = self.storageWrites(node, res, contract.name)
-                        # res = self.handleinternalFunction(node, internal_function, res)
+                if function_name[0] == "I":
+                    if function.canonical_name == function_name[1:]: # rm I from interface
+                        return (contract.name, function)
+                elif function.canonical_name == function_name:
+                    return (contract.name, function)
+
+    
+    def handleFunction(self, function_name, bodystring):
+        res = bodystring
+        
+        (contract_name, function) = self.getFunction(function_name)
+        res = self.handleNodes(function, res, contract_name, function.canonical_name)                
         
         return res
     
-    # def handleinternalFunction(self, node, function_name, body_string) :
+    def handleInternalFunction(self, function_name, bodystring) :
+        res = bodystring
         
-    #     for contract in self.contracts:
-    #         for function in contract.functions :
-    #             if function.canonical_name == function_name: # If it's our function
-    #                 for node in function.nodes_ordered_dominators: #If it's our node
-    #                     if len(node.internal_calls) > 0: 
-    #                         body_string = f"{body_string} \n {contract.name} -> {contract.name}: {node.full_name}" 
-
+        for contract in self.contracts:
+            for function in contract.functions :
+                if function.canonical_name == function_name: # If it's our function
+                    for node in function.nodes_ordered_dominators: #If it's our node
+                        for internal_calls in node.internal_calls:
+                            res = f"{res} \n {contract.name} -> {contract.name}: {internal_calls.full_name}" 
+        return res
     
     
-    def storageReads(self, node, body_string, contract_name):
-        res = body_string
+    def storageReads(self, node, bodystring, contract_name):
+        res = bodystring
         
         if len(node.state_variables_read) > 0:
             res = f"{res}\nnote over {contract_name}: SLOADs:"
@@ -55,8 +68,8 @@ class Sequence(AbstractPrinter):
         
         return res
 
-    def storageWrites(self, node, body_string, contract_name):
-        res = body_string
+    def storageWrites(self, node, bodystring, contract_name):
+        res = bodystring
         
         if len(node.state_variables_written) > 0:
             res = f"{res} \nnote over {contract_name} #A9DCDF: SSTOREs:"
@@ -67,17 +80,20 @@ class Sequence(AbstractPrinter):
         return res
 
     
-    def entryPoint(self, node, body_string, contract_name, function_name):
-        res = body_string
+    def entryPoint(self, function_name, bodystring):
+        res = bodystring
         
-        if node.type == NodeType.ENTRYPOINT:
-            res = f"{res}caller -> {contract_name}: {function_name}"
+        (contract_name, function) = self.getFunction(function_name)
+        
+        for node in function.nodes_ordered_dominators: # Review each node
+            if node.type == NodeType.ENTRYPOINT:
+                res = f"{res}caller -> {contract_name}: {function_name}"
         
         return res
 
 
-    def externalCall(self, node, body_string, contract_name):
-        res = body_string
+    def externalCall(self, node, bodystring, contract_name):
+        res = bodystring
         
         if len(node.high_level_calls) > 0:
             callee = node.high_level_calls[0][0]
@@ -88,7 +104,11 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
-                        res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        if callee.name[0] == "I":
+                            res = f"{res} \n{contract_name} -> {callee.name[1:]}: {caller.solidity_signature}"
+                        else:
+                            res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                        res = self.handleFunction(caller.canonical_name, res)
 
         return res
 
@@ -107,17 +127,18 @@ class Sequence(AbstractPrinter):
         pumlStart = "@startuml\n"
         pumlEnd = "\n@enduml"
         participants = "actor caller \n"
-        body_string = ""
+        bodystring = ""
         
         info = ""
         all_files = []
         # participants = f"{participants} participant {contract.name} \n"
         
-        # body_string = self.handleFunction(function_from_args, internal_function_tester, body_string)
-        body_string = self.handleFunction(function_from_args, body_string)
+        bodystring = self.entryPoint(function_from_args, bodystring)
+        bodystring = self.handleFunction(function_from_args, bodystring)
+        bodystring = self.handleInternalFunction(internal_function_tester, bodystring)
 
 
-        pumlString = f"{pumlStart}{participants}{body_string}{pumlEnd}"
+        pumlString = f"{pumlStart}{participants}{bodystring}{pumlEnd}"
 
         if filename:
             rev_function_name = "".join(x for x in function_from_args if x.isalnum())
