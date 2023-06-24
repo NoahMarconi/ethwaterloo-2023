@@ -92,11 +92,14 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
+                        callee_name = callee.name
                         if callee.name[0] == "I":
-                            res = f"{res} \n{contract_name} -> {callee.name[1:]}: {caller.solidity_signature}"
-                        else:
-                            res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                            callee_name = callee.name[1:]
+                            
+                        res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
                         res = self.handleFunction(caller.canonical_name, res)
+                            
+                        res = f"{res} \n {contract_name} <- {callee_name}: return {caller.solidity_signature}"
 
         return res
 
