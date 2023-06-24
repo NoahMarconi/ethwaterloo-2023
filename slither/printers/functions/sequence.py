@@ -36,6 +36,20 @@ class Sequence(AbstractPrinter):
             for function in contract.functions :
                 if function.canonical_name == functionName: # If it's our function
                     for node in function.nodes_ordered_dominators: # Review each node
+                        
+                        if len(node.high_level_calls) > 0:
+                            callee = node.high_level_calls[0][0]
+                            caller = node.high_level_calls[0][1] 
+                            if callee.contract_kind == "interface":
+                               
+                                for external_function in callee.derived_contracts[0].functions:
+                                    if external_function.canonical_name == caller.canonical_name:
+                                        bodystring = f"{bodystring} \n {contract.name} -> {callee.name}: {caller.solidity_signature}"
+
+                            
+                        
+                        
+                        
                         if node.type == NodeType.ENTRYPOINT:
                             bodystring = f"{bodystring} caller -> {contract.name}: {function.name}"
                         if len(node.state_variables_read) > 0:
