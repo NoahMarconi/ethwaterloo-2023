@@ -17,7 +17,7 @@ class Sequence(AbstractPrinter):
     def output(self, filename: str) -> Output:
         
         functionName = "UniswapV2Factory.createPair(address,address)"
-        internalFunctionName = "UniswapV2Pair._mintFee(uint112,uint112)"
+        testingInternalFunctionCaller = "UniswapV2Pair.mint(address)"
         """
         _filename is not used
         Args:
@@ -35,9 +35,10 @@ class Sequence(AbstractPrinter):
         for contract in self.contracts:  # type: ignore
             participants = f"{participants} participant {contract.name} \n"
             for function in contract.functions :
-                if function.canonical_name == internalFunctionName: # If it's our function
+                if function.canonical_name == testingInternalFunctionCaller: # If it's our function
                     for node in function.nodes_ordered_dominators: #If it's our node
-                        bodystring = f"{bodystring} \n {contract.name} -> {contract.name}: Internal Call"
+                        if len(node.internal_calls) > 0: 
+                            bodystring = f"{bodystring} \n {contract.name} -> {contract.name}: {node.full_name}" 
 
 
                 if function.canonical_name == functionName: # If it's our function
