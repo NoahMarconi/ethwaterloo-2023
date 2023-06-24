@@ -22,6 +22,7 @@ class Sequence(AbstractPrinter):
             res = self.externalCall(node, res, contract_name)
             res = self.storageReads(node, res, contract_name)
             res = self.storageWrites(node, res, contract_name)
+            res = self.conditionals(node, res, contract_name)
 
         return res
     
@@ -79,6 +80,13 @@ class Sequence(AbstractPrinter):
             
         return res
 
+    def conditionals(self, node, bodystring, contract_name):
+        res = bodystring
+        
+        if node.type == NodeType.EXPRESSION and len(node.solidity_calls) > 0 and len(node.solidity_calls[0].references) > 0 and node.solidity_calls[0].references[0].content == "require":
+            res = f"{res} \n alt require \n\n\t {contract_name} -> {contract_name}:  revert \n else continue \n end \n"
+            
+        return res
     
     def entryPoint(self, function_name, bodystring):
         res = bodystring
@@ -104,11 +112,14 @@ class Sequence(AbstractPrinter):
                 for external_function in callee.derived_contracts[0].functions:
 
                     if external_function.canonical_name == caller.canonical_name:
+                        callee_name = callee.name
                         if callee.name[0] == "I":
-                            res = f"{res} \n{contract_name} -> {callee.name[1:]}: {caller.solidity_signature}"
-                        else:
-                            res = f"{res} \n{contract_name} -> {callee.name}: {caller.solidity_signature}"
+                            callee_name = callee.name[1:]
+                            
+                        res = f"{res} \n{contract_name} -> {callee_name}: {caller.solidity_signature}"
                         res = self.handleFunction(caller.canonical_name, res)
+                            
+                        res = f"{res} \n {contract_name} <- {callee_name}: return {caller.solidity_signature}"
 
         return res
 
