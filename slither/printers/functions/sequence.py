@@ -46,12 +46,14 @@ class Sequence(AbstractPrinter):
         pumlString = f"{pumlStart} {participants} {bodystring} {pumlEnd}"
 
         if filename:
-            new_filename = f"{filename}-{functionName}.puml"
+            rev_function_name = "".join(x for x in functionName if x.isalnum())
+            new_filename = f"{filename}-{rev_function_name}.puml"
         else:
             new_filename = f"{functionName}.puml"
 
         with open(new_filename, "w", encoding="utf8") as f:
             f.write(pumlString)
+
         all_files.append((new_filename, pumlString))
 
         info = f"Export to {new_filename}\n" 
