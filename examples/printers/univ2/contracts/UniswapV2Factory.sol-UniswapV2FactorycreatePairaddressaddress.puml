@@ -1,23 +1,14 @@
 @startuml
- actor caller 
- participant UniswapV2ERC20 
- participant UniswapV2Factory 
- participant UniswapV2Pair 
- participant IERC20 
- participant IUniswapV2Callee 
- participant IUniswapV2ERC20 
- participant IUniswapV2Factory 
- participant IUniswapV2Pair 
- participant Math 
- participant SafeMath 
- participant UQ112x112 
-  caller -> UniswapV2Factory: createPair 
- note over UniswapV2Factory: SLOADS: \n   - getPair 
- UniswapV2Factory -> IUniswapV2Pair: initialize(address,address) 
- UniswapV2Factory <- IUniswapV2Pair: return initialize(address,address) 
- note over UniswapV2Factory: SSTORE: \n   - getPair 
- note over UniswapV2Factory: SSTORE: \n   - getPair 
- note over UniswapV2Factory: SLOADS: \n   - allPairs 
- note over UniswapV2Factory: SSTORE: \n   - allPairs 
- note over UniswapV2Factory: SLOADS: \n   - allPairs 
+actor caller 
+caller -> UniswapV2Factory: UniswapV2Factory.createPair(address,address)
+note over UniswapV2Factory: SLOADs: \n   - getPair 
+UniswapV2Factory -> UniswapV2Pair: initialize(address,address)
+note over UniswapV2Pair: SLOADs: \n   - factory 
+note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token0 
+note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token1 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair
+note over UniswapV2Factory: SLOADs: \n   - allPairs 
+note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - allPairs
+note over UniswapV2Factory: SLOADs: \n   - allPairs
 @enduml
