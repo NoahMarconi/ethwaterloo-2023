@@ -131,8 +131,8 @@ class Sequence(AbstractPrinter):
 
     def output(self, filename: str) -> Output:
         
-        # function_from_args = "UniswapV2Factory.createPair(address,address)"
-        function_from_args = "UniswapV2Pair.mint(address)"
+        function_from_args = "UniswapV2Factory.createPair(address,address)"
+        # function_from_args = "UniswapV2Pair.mint(address)"
 
         """
         _filename is not used
