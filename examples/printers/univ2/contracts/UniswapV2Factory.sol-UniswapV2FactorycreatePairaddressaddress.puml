@@ -21,8 +21,8 @@ note over UniswapV2Factory: SLOADs: \n   - getPair
  end 
  
  UniswapV2Factory -> UniswapV2Factory: type(address) 
- UniswapV2Factory -> UniswapV2Factory: abi.encodePacked() 
  UniswapV2Factory -> UniswapV2Factory: keccak256(bytes) 
+ UniswapV2Factory -> UniswapV2Factory: abi.encodePacked() 
 UniswapV2Factory -> UniswapV2Pair: initialize(address,address)
 note over UniswapV2Pair: SLOADs: \n   - factory 
  alt require 
