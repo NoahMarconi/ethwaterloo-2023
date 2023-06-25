@@ -11,16 +11,15 @@ UniswapV2Pair -> IERC20: balanceOf(address)
 note over UniswapV2Pair: SLOADs: \n   - token1 
  UniswapV2Pair -> UniswapV2Pair: _mintFee(uint112,uint112)
 note over UniswapV2Pair: SLOADs: \n   - totalSupply
-note over UniswapV2Pair: SLOADs: \n   - MINIMUM_LIQUIDITY
 note over UniswapV2Pair: SLOADs: \n   - MINIMUM_LIQUIDITY 
- UniswapV2Pair -> UniswapV2Pair: _mint(address,uint256) 
+ UniswapV2Pair -> UniswapV2Pair: _mint(address,uint256)
+note over UniswapV2Pair: SLOADs: \n   - MINIMUM_LIQUIDITY 
  alt require 
 
 	 UniswapV2Pair -> UniswapV2Pair:  revert 
  else continue 
  end 
  
- UniswapV2Pair -> UniswapV2Pair: require(bool,string) 
  UniswapV2Pair -> UniswapV2Pair: _mint(address,uint256) 
  UniswapV2Pair -> UniswapV2Pair: _update(uint256,uint256,uint112,uint112)
 note over UniswapV2Pair: SLOADs: \n   - reserve0 \n   - reserve1 
