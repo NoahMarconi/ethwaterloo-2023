@@ -51,7 +51,8 @@ class Sequence(AbstractPrinter):
         res = bodystring
 
         for internal_calls in node.internal_calls:
-            res = f"{res} \n {contract_name} -> {contract_name}: {internal_calls.full_name}"
+            if internal_calls.full_name[:7] != "require":
+                res = f"{res} \n {contract_name} -> {contract_name}: {internal_calls.full_name}"
 
         return res
     

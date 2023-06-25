@@ -7,14 +7,12 @@ caller -> UniswapV2Factory: UniswapV2Factory.createPair(address,address)
  else continue 
  end 
  
- UniswapV2Factory -> UniswapV2Factory: require(bool,string) 
  alt require 
 
 	 UniswapV2Factory -> UniswapV2Factory:  revert 
  else continue 
  end 
- 
- UniswapV2Factory -> UniswapV2Factory: require(bool,string)
+
 note over UniswapV2Factory: SLOADs: \n   - getPair 
  alt require 
 
@@ -22,10 +20,9 @@ note over UniswapV2Factory: SLOADs: \n   - getPair
  else continue 
  end 
  
- UniswapV2Factory -> UniswapV2Factory: require(bool,string) 
  UniswapV2Factory -> UniswapV2Factory: type(address) 
- UniswapV2Factory -> UniswapV2Factory: abi.encodePacked() 
  UniswapV2Factory -> UniswapV2Factory: keccak256(bytes) 
+ UniswapV2Factory -> UniswapV2Factory: abi.encodePacked() 
 UniswapV2Factory -> UniswapV2Pair: initialize(address,address)
 note over UniswapV2Pair: SLOADs: \n   - factory 
  alt require 
@@ -34,9 +31,9 @@ note over UniswapV2Pair: SLOADs: \n   - factory
  else continue 
  end 
  
- UniswapV2Pair -> UniswapV2Pair: require(bool,string) 
 note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token0 
 note over UniswapV2Pair #A9DCDF: SSTOREs: \n   - token1 
+UniswapV2Factory -> UniswapV2Pair: initialize(address,address) 
  UniswapV2Factory <- UniswapV2Pair: return initialize(address,address) 
 note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair 
 note over UniswapV2Factory #A9DCDF: SSTOREs: \n   - getPair
